@@ -14,7 +14,7 @@ writes out these events to Kafka.
 Running
 =======
 
-.. code-block: shell
+::
 
    virtualenv venv
    source venv/bin/activate
