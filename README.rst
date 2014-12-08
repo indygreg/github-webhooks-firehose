@@ -23,4 +23,4 @@ Running
 
    <edit your config.ini>
 
-   GHFIREHOSE_CONFIG=config PATH=/path/to/kafka/bin:$PATH circusd config.ini
+   GHFIREHOSE_CONFIG=config.ini PATH=/path/to/kafka/bin:$PATH circusd config.ini
