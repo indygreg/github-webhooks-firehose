@@ -28,3 +28,6 @@ Running
    <edit your config.ini>
 
    GHFIREHOSE_CONFIG=config.ini PATH=/path/to/kafka/bin:$PATH circusd config.ini
+
+Then, configure a GitHub webhook to submit to /webhook on the HTTP
+server.

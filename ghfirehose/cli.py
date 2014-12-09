@@ -4,16 +4,20 @@
 
 from __future__ import unicode_literals
 
+import datetime
 import os
 import sys
 import tempfile
 import time
+
+from collections import Counter
 
 from pkg_resources import Requirement, resource_string
 
 import which
 
 from ghfirehose import get_config
+from ghfirehose.firehose import FirehoseConsumer
 
 def start_zookeeper():
     config = get_config()
@@ -57,3 +61,35 @@ def signal_zookeeper(watcher, arbiter, hook_name, pid, signum, **kwargs):
     time.sleep(3)
 
     return True
+
+def github_event_counts():
+    c = get_config()
+    hostport = '%s:%s' % (c['kafka']['host_name'], c['kafka']['port'])
+    topic = c['kafka']['topic'].encode('utf-8')
+    consumer = FirehoseConsumer(hostport, topic)
+
+    dates = {}
+
+    while True:
+        e = consumer.get_event()
+        if not e:
+            break
+
+        when, event, delivery, signature, payload = e
+        dt = datetime.datetime.utcfromtimestamp(when)
+        date = dt.date()
+
+        if event in ('ping', 'membership'):
+            continue
+
+        repo = payload['repository']['name']
+
+        repos = dates.setdefault(date, {})
+        events = repos.setdefault(repo, Counter())
+        events[event] += 1
+
+    for date, repos in sorted(dates.iteritems()):
+        for repo, events in sorted(repos.iteritems()):
+            for event, count in sorted(events.iteritems()):
+                print('%s\t%s\t%s\t%d' % (date, repo, event, count))
+

@@ -4,24 +4,31 @@
 
 import json
 import time
+import uuid
 
 from kafka import (
     KafkaClient,
+    SimpleConsumer,
     SimpleProducer,
 )
 
+def get_client(hostport):
+    # So hacky.
+    limit = time.time() + 10
+    while time.time() < limit:
+        try:
+            return KafkaClient(hostport)
+        except Exception:
+            time.sleep(0.250)
+        else:
+            break
+
+    raise Exception('could not connect to Kafka in time allowed')
+
+
 class FirehoseProducer(object):
     def __init__(self, kafka_hostport, topic):
-        # So hacky.
-        limit = time.time() + 10
-        while time.time() < limit:
-            try:
-                self.kafka = KafkaClient(kafka_hostport)
-            except Exception:
-                time.sleep(0.250)
-            else:
-                break
-
+        self.kafka = get_client(kafka_hostport)
         self.kafka.ensure_topic_exists(topic)
         self.producer = SimpleProducer(self.kafka)
         self.topic = topic
@@ -35,3 +42,19 @@ class FirehoseProducer(object):
 
     def close(self):
         self.kafka.close()
+
+class FirehoseConsumer(object):
+    def __init__(self, kafka_hostport, topic):
+        self.kafka = get_client(kafka_hostport)
+        self.consumer = SimpleConsumer(self.kafka, str(uuid.uuid4()), topic,
+            auto_commit=False, max_buffer_size=1048576 * 32)
+
+    def get_event(self):
+        data = self.consumer.get_message()
+        if not data:
+            return None
+
+        when, event, delivery, signature, raw = json.loads(data.message.value)
+        payload = json.loads(raw)
+
+        return when, event, delivery, signature, payload
