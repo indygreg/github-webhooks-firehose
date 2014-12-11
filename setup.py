@@ -13,6 +13,7 @@ setup(
             'start-kafka = ghfirehose.cli:start_kafka',
             'start-zookeeper = ghfirehose.cli:start_zookeeper',
             'github-event-counts = ghfirehose.cli:github_event_counts',
+            'github-irc = ghfirehose.irc:run',
         ],
     },
     package_data={
