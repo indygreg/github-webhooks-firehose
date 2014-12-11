@@ -44,9 +44,12 @@ class FirehoseProducer(object):
         self.kafka.close()
 
 class FirehoseConsumer(object):
-    def __init__(self, kafka_hostport, topic):
+    def __init__(self, kafka_hostport, topic, group=None):
+        if not group:
+            group = str(uuid.uuid4())
+
         self.kafka = get_client(kafka_hostport)
-        self.consumer = SimpleConsumer(self.kafka, str(uuid.uuid4()), topic,
+        self.consumer = SimpleConsumer(self.kafka, group, topic,
             auto_commit=False, max_buffer_size=1048576 * 32)
 
     def get_event(self):
