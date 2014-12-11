@@ -64,7 +64,7 @@ def signal_zookeeper(watcher, arbiter, hook_name, pid, signum, **kwargs):
 
 def github_event_counts():
     c = get_config()
-    consumer = get_consumer(c)
+    consumer = get_consumer(c, auto_commit=False)
 
     dates = {}
 

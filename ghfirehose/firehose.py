@@ -44,13 +44,13 @@ class FirehoseProducer(object):
         self.kafka.close()
 
 class FirehoseConsumer(object):
-    def __init__(self, kafka_hostport, topic, group=None):
+    def __init__(self, kafka_hostport, topic, group=None, **kwargs):
         if not group:
             group = str(uuid.uuid4())
 
         self.kafka = get_client(kafka_hostport)
         self.consumer = SimpleConsumer(self.kafka, group, topic,
-            auto_commit=False, max_buffer_size=1048576 * 32)
+            max_buffer_size=1048576 * 32, **kwargs)
 
     def get_event(self):
         data = self.consumer.get_message()
@@ -62,9 +62,9 @@ class FirehoseConsumer(object):
 
         return when, event, delivery, signature, payload
 
-def get_consumer(config, group=None):
+def get_consumer(config, group=None, **kwargs):
     """Obtain a FirehoseConsumer from a config object."""
     hostport = '%s:%s' % (config['kafka']['host_name'], config['kafka']['port'])
     topic = config['kafka']['topic'].encode('utf-8')
 
-    return FirehoseConsumer(hostport, topic, group=group)
+    return FirehoseConsumer(hostport, topic, group=group, **kwargs)
