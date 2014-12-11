@@ -17,7 +17,7 @@ from pkg_resources import Requirement, resource_string
 import which
 
 from ghfirehose import get_config
-from ghfirehose.firehose import FirehoseConsumer
+from ghfirehose.firehose import get_consumer
 
 def start_zookeeper():
     config = get_config()
@@ -64,9 +64,7 @@ def signal_zookeeper(watcher, arbiter, hook_name, pid, signum, **kwargs):
 
 def github_event_counts():
     c = get_config()
-    hostport = '%s:%s' % (c['kafka']['host_name'], c['kafka']['port'])
-    topic = c['kafka']['topic'].encode('utf-8')
-    consumer = FirehoseConsumer(hostport, topic)
+    consumer = get_consumer(c)
 
     dates = {}
 

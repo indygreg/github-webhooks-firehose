@@ -61,3 +61,10 @@ class FirehoseConsumer(object):
         payload = json.loads(raw)
 
         return when, event, delivery, signature, payload
+
+def get_consumer(config, group=None):
+    """Obtain a FirehoseConsumer from a config object."""
+    hostport = '%s:%s' % (config['kafka']['host_name'], config['kafka']['port'])
+    topic = config['kafka']['topic'].encode('utf-8')
+
+    return FirehoseConsumer(hostport, topic, group=group)
