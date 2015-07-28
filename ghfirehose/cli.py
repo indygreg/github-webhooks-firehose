@@ -12,7 +12,7 @@ import time
 
 from collections import Counter
 
-from pkg_resources import Requirement, resource_string
+from pkg_resources import resource_string
 
 import which
 
@@ -24,8 +24,7 @@ def start_zookeeper():
 
     p = which.which('zookeeper-server-start.sh')
 
-    template = resource_string(Requirement.parse('github-firehose'),
-        'zookeeper.properties.in')
+    template = resource_string(__name__, 'zookeeper.properties.in')
 
     template = template.replace('{datadir}', config['zookeeper']['datadir'])
 
@@ -40,8 +39,7 @@ def start_kafka():
 
     p = which.which('kafka-server-start.sh')
 
-    template = resource_string(Requirement.parse('github-firehose'),
-        'kafka.properties.in')
+    template = resource_string(__name__, 'kafka.properties.in')
 
     names = {'broker_id', 'log_dirs', 'host_name', 'port'}
 
